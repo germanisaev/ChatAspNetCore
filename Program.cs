@@ -1,6 +1,8 @@
 using ChatService.DataService;
 using ChatService.Hubs;
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -8,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("reactApp", builder =>
+    options.AddPolicy(MyAllowSpecificOrigins, builder =>
     {
         builder.WithOrigins("http://localhost:3000")
                .AllowAnyHeader()
@@ -35,29 +37,24 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-/* app.Use(async (context, next) =>
-{
-    if (context.Request.Method == "OPTIONS")
-    {
-        context.Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:3000");
-        context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        context.Response.StatusCode = 200;
-        return;
-    }
-    await next();
-}); */
-
-app.UseCors("reactApp");
+//app.UseHttpsRedirection();
 
 app.UseRouting(); // Make sure UseRouting is present
 
 app.UseAuthorization();
 
+
+
 app.MapControllers();
 
+app.UseCors(MyAllowSpecificOrigins);
+
 app.MapHub<ChatHub>("/chat");
+
+/* app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ChatHub>("/chat")
+             .RequireCors(MyAllowSpecificOrigins); 
+}); */
 
 app.Run();

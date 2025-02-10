@@ -1,9 +1,11 @@
 using ChatService.DataService;
 using ChatService.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace ChatService.Hubs;
 
+[AllowAnonymous]
 public class ChatHub: Hub
 {
         private readonly SharedDb _sharedDb;
@@ -26,7 +28,7 @@ public class ChatHub: Hub
             _sharedDb.Connection[Context.ConnectionId] = connection;
 
             await Clients.Group(connection.ChatRoom)
-                .SendAsync("ReceiveMessage", "admin", $"{connection.UserName} has joined the chat room {connection.ChatRoom}");
+                .SendAsync("JoinSpecificChatRoom", "admin", $"{connection.UserName} has joined the chat room {connection.ChatRoom}");
 
             Console.WriteLine($"ChatRoom: {connection.ChatRoom} UserName: {connection.UserName}");
             //print out all chat rooms
